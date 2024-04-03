@@ -7,7 +7,17 @@ const myObj = {
     },
     {
       name: 5,
-      items: [{ name: 6, items: [{ name: 7, items: [{ name: 8 }] }] }],
+      items: [
+        {
+          name: 6,
+          items: [
+            {
+              name: 7,
+              items: [{ name: 8, items: [{ name: 9, items: [{ name: 10 }] }] }],
+            },
+          ],
+        },
+      ],
     },
   ],
 };
@@ -19,16 +29,21 @@ interface IInputObject {
 
 function forEachObj(obj: IInputObject, prevCount?: number) {
   let count = prevCount || 0;
+
   if (obj.name) {
     count++;
+    let output: string | null = null;
+
     if (count === 1) {
-      console.log(obj.name);
+      output = String(obj.name);
     } else if (count === 2) {
-      console.log("├──", obj.name);
+      output = "├──" + " " + obj.name;
     } else {
       const spaces = count - 2;
-      console.log("│" + " ".repeat(spaces) + "└──", obj.name);
+      output = "│" + " ".repeat(spaces) + "└──" + " " + obj.name;
     }
+
+    console.log(output);
 
     if (obj.items) {
       obj.items.forEach((item) => {
