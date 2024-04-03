@@ -27,7 +27,7 @@ interface IInputObject {
   items?: IInputObject[];
 }
 
-function forEachObj(obj: IInputObject, prevCount?: number) {
+function tree(obj: IInputObject, prevCount?: number) {
   let count = prevCount || 0;
 
   if (obj.name) {
@@ -47,10 +47,10 @@ function forEachObj(obj: IInputObject, prevCount?: number) {
 
     if (obj.items) {
       obj.items.forEach((item) => {
-        forEachObj(item, count);
+        tree(item, count);
       });
     }
   }
 }
 
-forEachObj(myObj);
+tree(myObj);
