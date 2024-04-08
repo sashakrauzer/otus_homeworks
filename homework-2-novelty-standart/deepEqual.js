@@ -29,10 +29,12 @@ const obj3 = {
 function deepEqual(actual, expected) {
   function forEachProps(actual, expected, prevProp, prevType) {
     for (const prop in actual) {
+      // Проверяем что свойство не находится в прототипе
       if (!actual.hasOwnProperty(prop)) {
         continue;
       }
 
+      // Проверяем если actual массив, то проверяем и expected и следом сравниваем их длину
       const isActualArray = Array.isArray(actual[prop]);
       const isExpectedArray = Array.isArray(expected[prop]);
       if (isActualArray) {
@@ -41,13 +43,16 @@ function deepEqual(actual, expected) {
         }
       }
 
+      // Получаем тоже свойство в expected
       if (prop in expected) {
+        // Сравниваем значения свойств. Если значения не равны, то возможно это объекты
         if (actual[prop] === expected[prop]) {
           continue;
         } else if (
           !(actual[prop] instanceof Object) &&
           !(expected[prop] instanceof Object)
         ) {
+          // Если это не объекты то возвращаем ошибку
           let result = "Error: ";
 
           if (prevProp) {
@@ -62,6 +67,7 @@ function deepEqual(actual, expected) {
           1;
           return result;
         } else {
+          // Если все таки объекты, то вызываем функцию рекурсивно передав текущие значения
           let nextProp = "";
           if (prevProp) {
             if (prevType === "array") {
@@ -86,6 +92,7 @@ function deepEqual(actual, expected) {
           continue;
         }
       } else {
+        // Если такого же свойства нету, то ошибка
         return "Error: " + (prevProp ? prevProp + "." + prop : prop);
       }
     }
@@ -93,14 +100,12 @@ function deepEqual(actual, expected) {
     return "OK";
   }
 
-  forEachProps(actual, expected);
-
-  console.log(forEachProps(actual, expected));
+  return forEachProps(actual, expected);
 }
 
-deepEqual(obj1, obj2);
+console.log(deepEqual(obj1, obj2));
 // // OK
 // deepEqual(obj1, obj2);
 // // Error: a.b
-deepEqual(obj1, obj3);
+console.log(deepEqual(obj1, obj3));
 // // OK
