@@ -34,40 +34,28 @@ function deepEqual(actual, expected) {
         continue;
       }
 
-      // Проверяем если actual массив, то проверяем и expected и следом сравниваем их длину
-      const isActualArray = Array.isArray(actual[prop]);
-      const isExpectedArray = Array.isArray(expected[prop]);
-      if (isActualArray) {
-        if (!isExpectedArray || actual[prop].length !== expected[prop].length) {
-          return "Error: " + (prevProp ? prevProp + "." + prop : prop);
-        }
-      }
-
       // Получаем тоже свойство в expected
       if (prop in expected) {
         // Сравниваем значения свойств. Если значения не равны, то возможно это объекты
         if (actual[prop] === expected[prop]) {
           continue;
         } else if (
-          !(actual[prop] instanceof Object) &&
-          !(expected[prop] instanceof Object)
+          actual[prop] instanceof Object &&
+          expected[prop] instanceof Object
         ) {
-          // Если это не объекты то возвращаем ошибку
-          let result = "Error: ";
-
-          if (prevProp) {
-            if (prevType === "array") {
-              result += prevProp + "[" + prop + "]";
-            } else {
-              result += prevProp + "." + prop;
+          // Проверяем если actual массив, то проверяем и expected и следом сравниваем их длину
+          const isActualArray = Array.isArray(actual[prop]);
+          const isExpectedArray = Array.isArray(expected[prop]);
+          if (isActualArray) {
+            if (
+              !isExpectedArray ||
+              actual[prop].length !== expected[prop].length
+            ) {
+              return "Error: " + (prevProp ? prevProp + "." + prop : prop);
             }
-          } else {
-            result += prop;
           }
-          1;
-          return result;
-        } else {
-          // Если все таки объекты, то вызываем функцию рекурсивно передав текущие значения
+
+          // Если объекты, то вызываем функцию рекурсивно передав текущие значения
           let nextProp = "";
           if (prevProp) {
             if (prevType === "array") {
@@ -89,7 +77,23 @@ function deepEqual(actual, expected) {
           if (result.includes("Error")) {
             return result;
           }
+
           continue;
+        } else {
+          // Если оба не объекты, то возвращаем ошибку
+          let result = "Error: ";
+
+          if (prevProp) {
+            if (prevType === "array") {
+              result += prevProp + "[" + prop + "]";
+            } else {
+              result += prevProp + "." + prop;
+            }
+          } else {
+            result += prop;
+          }
+          1;
+          return result;
         }
       } else {
         // Если такого же свойства нету, то ошибка
@@ -103,9 +107,9 @@ function deepEqual(actual, expected) {
   return forEachProps(actual, expected);
 }
 
-console.log(deepEqual(obj1, obj2));
+console.log(deepEqual(obj1, obj1));
 // // OK
-// deepEqual(obj1, obj2);
+console.log(deepEqual(obj1, obj2));
 // // Error: a.b
 console.log(deepEqual(obj1, obj3));
 // // OK
