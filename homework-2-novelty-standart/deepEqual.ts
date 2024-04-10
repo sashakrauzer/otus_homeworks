@@ -1,4 +1,8 @@
-const obj1 = {
+interface NestedObject extends Object {
+  [key: string]: any;
+}
+
+const obj1: NestedObject = {
   a: {
     b: {
       c: [1, 3, { l: [1] }],
@@ -9,6 +13,7 @@ const obj1 = {
     },
   },
 };
+
 const obj2 = {
   a: {
     b: {
@@ -20,14 +25,20 @@ const obj2 = {
     },
   },
 };
+
 const obj3 = {
   a: {
     b: 1,
   },
 };
 
-function deepEqual(actual, expected) {
-  function forEachProps(actual, expected, prevProp, prevType) {
+function deepEqual(actual: NestedObject, expected: NestedObject): string {
+  function forEachProps(
+    actual: NestedObject,
+    expected: NestedObject,
+    prevProp?: string,
+    prevType?: string
+  ): string {
     for (const prop in actual) {
       // Проверяем что свойство не находится в прототипе
       if (!actual.hasOwnProperty(prop)) {
@@ -110,6 +121,6 @@ function deepEqual(actual, expected) {
 console.log(deepEqual(obj1, obj1));
 // // OK
 console.log(deepEqual(obj1, obj2));
-// // Error: a.b
+// // Error: a.e.g[6].i
 console.log(deepEqual(obj1, obj3));
-// // OK
+// // Error: a.b
