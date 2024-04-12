@@ -29,16 +29,54 @@ const obj2 = {
 const obj3 = {
   a: {
     b: 1,
+    e: 3,
   },
 };
 
 function deepEqual(actual: NestedObject, expected: NestedObject): string {
+  // Вспомогательная функция для формирования пути к ошибке
+  function getPath(
+    currentPath: string | undefined,
+    currentProp: string,
+    isArray: boolean
+  ) {
+    if (isArray) {
+      if (currentPath) {
+        return currentPath + "." + currentProp + "[";
+      }
+      return currentProp + "[";
+    } else if (currentPath && currentPath[currentPath?.length - 1] === "[") {
+      return currentPath + currentProp + "]";
+    } else {
+      if (currentPath) {
+        return currentPath + "." + currentProp;
+      }
+      return currentProp;
+    }
+  }
+
   function forEachProps(
     actual: NestedObject,
     expected: NestedObject,
-    prevProp?: string,
-    prevType?: string
+    path?: string
   ): string {
+    // Если ссылка одна, возвращаем сразу Ок
+    if (actual === expected) {
+      return "OK";
+    }
+
+    const actualKeys = Object.keys(actual);
+    const expectedKeys = Object.keys(expected);
+
+    // Сравниваем количество ключей
+    if (actualKeys.length !== expectedKeys.length) {
+      return "Error: " + path;
+    }
+    // И названия ключей
+    if (actualKeys.toString() !== expectedKeys.toString()) {
+      return "Error: " + path;
+    }
+
     for (const prop in actual) {
       // Проверяем что свойство не находится в прототипе
       if (!actual.hasOwnProperty(prop)) {
@@ -62,28 +100,12 @@ function deepEqual(actual: NestedObject, expected: NestedObject): string {
               !isExpectedArray ||
               actual[prop].length !== expected[prop].length
             ) {
-              return "Error: " + (prevProp ? prevProp + "." + prop : prop);
+              return "Error: " + getPath(path, prop, isActualArray);
             }
           }
 
-          // Если объекты, то вызываем функцию рекурсивно передав текущие значения
-          let nextProp = "";
-          if (prevProp) {
-            if (prevType === "array") {
-              nextProp += prevProp + "[" + prop + "]";
-            } else {
-              nextProp += prevProp + "." + prop;
-            }
-          } else {
-            nextProp += prop;
-          }
-
-          const result = forEachProps(
-            actual[prop],
-            expected[prop],
-            nextProp,
-            isActualArray ? "array" : "object"
-          );
+          const newPath = getPath(path, prop, isActualArray);
+          const result = forEachProps(actual[prop], expected[prop], newPath);
 
           if (result.includes("Error")) {
             return result;
@@ -92,23 +114,11 @@ function deepEqual(actual: NestedObject, expected: NestedObject): string {
           continue;
         } else {
           // Если оба не объекты, то возвращаем ошибку
-          let result = "Error: ";
-
-          if (prevProp) {
-            if (prevType === "array") {
-              result += prevProp + "[" + prop + "]";
-            } else {
-              result += prevProp + "." + prop;
-            }
-          } else {
-            result += prop;
-          }
-          1;
-          return result;
+          return "Error: " + getPath(path, prop, false);
         }
       } else {
         // Если такого же свойства нету, то ошибка
-        return "Error: " + (prevProp ? prevProp + "." + prop : prop);
+        return "Error: " + getPath(path, prop, false);
       }
     }
 
@@ -119,8 +129,8 @@ function deepEqual(actual: NestedObject, expected: NestedObject): string {
 }
 
 console.log(deepEqual(obj1, obj1));
-// // OK
+// OK
 console.log(deepEqual(obj1, obj2));
-// // Error: a.e.g[6].i
+// Error: a.e.g[6].i
 console.log(deepEqual(obj1, obj3));
-// // Error: a.b
+// Error: a.b
