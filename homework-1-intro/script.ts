@@ -22,12 +22,12 @@ const myObj = {
   ],
 };
 
-interface IInputObject {
+export interface IInputObject {
   name: number;
   items?: IInputObject[];
 }
 
-function tree(obj: IInputObject, prevCount?: number) {
+export function tree(obj: IInputObject, prevCount?: number) {
   let count = prevCount || 0;
 
   if (obj.name) {
@@ -53,4 +53,4 @@ function tree(obj: IInputObject, prevCount?: number) {
   }
 }
 
-tree(myObj);
+// tree(myObj);
